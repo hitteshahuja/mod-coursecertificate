@@ -101,6 +101,35 @@ class helper {
         return $records ? reset($records) : null;
     }
 
+    public static function send_expiry_notification(\stdClass $user, \stdClass $coursecertificate, ?\stdClass $course = null, ?template $template = null)
+    {
+        $lockfactory = \core\lock\lock_config::get_lock_factory('mod_coursecertificate_expiry_notification');
+        $lock = $lockfactory->get_lock("i_{$user->id}_{$coursecertificate->template}_{$coursecertificate->course}", MINSECS);
+        if (! $lock) {
+            throw new \moodle_exception('locktimeout');
+        }
+        if ($certificate = self::get_user_certificate($user->id, $coursecertificate->course, $coursecertificate->template)) {
+            $course = $course ?? get_course($coursecertificate->course);
+            $template = $template ?? template::instance($coursecertificate->template);
+            // We calculate the expiry notification date to determine if its time to send the notification or not.
+            $expirynotifdate = certificate::calculate_expiry_notification_date(
+                $coursecertificate->expirydatetype,
+                $certificate->expires,
+                $coursecertificate->expirynotificationdateoffset
+                );
+            if(time() > $expirynotifdate) {
+                // Send notification now.
+                echo("send notification now");
+                $template->expire_certificate_notification($certificate, $coursecertificate);
+                // Log it.
+                // ??? Last notifictiaton sent so it doesnt do it again ? 
+            }
+        }
+        if ($lock) {
+            $lock->release();
+        }
+    }
+
     /**
      * Issue a course certificate to the user if they don't already have one
      *
@@ -152,6 +181,22 @@ class helper {
     }
 
     /**
+     * Returns select for the users that have been already issued and expiry notification have not been sent.
+     *
+     * @param int $courseid
+     * @param int $templateid
+     * @return array
+     */
+    private static function get_users_issued_expiry_notif_not_sent_select(int $courseid, int $templateid): array {
+        $sql = "SELECT DISTINCT ci.userid FROM {tool_certificate_issues} ci
+                WHERE component = :component AND courseid = :courseid AND templateid = :templateid
+                      AND archived = 0 AND expirynotifsent = 0";
+        $params = ['component' => 'mod_coursecertificate', 'courseid' => $courseid,
+            'templateid' => $templateid];
+        return [$sql, $params];
+    }
+
+    /**
      * Get data for the issue. Important course fields (id, shortname, fullname and URL) and course customfields.
      *
      * @param \stdClass $course
@@ -187,5 +232,37 @@ class helper {
         }
 
         return $issuedata;
+    }
+    /**
+     * Gets users who meet access restrictionss and had not been issued.
+     *
+     * @param \stdClass $coursecertificate
+     * @param \cm_info $cm
+     * @return array
+     */
+    public static function get_users_to_send_expiry_notifications(\stdClass $coursecertificate, \cm_info $cm): array {
+        global $DB;
+        
+        $context = \context_course::instance($coursecertificate->course);
+        // Get users already issued subquery.
+        [$usersissuedsql, $usersissuedparams] = self::get_users_issued_expiry_notif_not_sent_select($coursecertificate->course,
+            $coursecertificate->template);
+        // Get users enrolled with receive capabilities subquery.
+        [$enrolledsql, $enrolledparams] = get_enrolled_sql($context, 'mod/coursecertificate:receive', 0, true);
+        $sql  = "SELECT eu.id FROM ($enrolledsql) eu WHERE eu.id IN ($usersissuedsql)";
+        $params = array_merge($enrolledparams, $usersissuedparams);
+        $potentialusers = $DB->get_records_sql($sql, $params);
+        // Filter only users with access to the activity {@see info_module::filter_user_list}.
+        $info = new \core_availability\info_module($cm);
+        $filteredusers = $info->filter_user_list($potentialusers);
+        
+        // Filter only users without 'viewall' capabilities and with access to the activity.
+        $users = [];
+        foreach ($filteredusers as $filtereduser) {
+            if (info_module::is_user_visible($cm, $filtereduser->id, false)) {
+                $users[] = $filtereduser;
+            }
+        }
+        return $users;
     }
 }

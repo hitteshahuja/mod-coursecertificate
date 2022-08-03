@@ -13,6 +13,9 @@
         <FIELD NAME="automaticsend" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Automatic certificate send setting."/>
         <FIELD NAME="expirydatetype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="expirydateoffset" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp for absolute dates, duration in seconds for relative dates."/>
+        <FIELD NAME="expirynotificationenabled" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp for absolute dates, duration in seconds for relative dates."/>
+        <FIELD NAME="expirynotificationdateoffset" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp for absolute dates, duration in seconds for relative dates."/>
+        <FIELD NAME="expirynotificationmessage" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp for absolute dates, duration in seconds for relative dates."/>    
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was last modified."/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Activity description."/>

@@ -58,6 +58,7 @@ Students who have already accessed this activity will not receive the certificat
 $string['enableautomaticsendpopup'] = 'All students will automatically receive a PDF copy of the certificate as soon as they meet this activity\'s access restrictions.<br/><br/>
 Students who already meet these access restrictions but haven\'t accessed this activity yet will immediately receive their copy as well.<br/><br/>
 Students who have already accessed this activity will not receive the certificate again.';
+$string['errorexpirynotificationdateoffset'] = 'Expiry notificate date cannot be after expiry date';
 $string['expirydate'] = 'Expiry date';
 $string['issueddate'] = 'Date issued';
 $string['managetemplates'] = 'Manage certificate templates';
@@ -87,4 +88,5 @@ $string['selectdate'] = 'Select date';
 $string['selecttemplatewarning'] = 'Once this activity issues at least one certificate, this field will be locked and will no longer be editable.';
 $string['status'] = 'Status';
 $string['taskissuecertificates'] = 'Issue course certificates';
+$string['tasksendexpirynotification'] = 'Send certificate expiry notifications';
 $string['template'] = 'Template';

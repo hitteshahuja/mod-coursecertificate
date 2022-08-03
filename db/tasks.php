@@ -33,5 +33,14 @@ $tasks = [
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*'
+    ],
+    [
+        'classname' => 'mod_coursecertificate\task\send_expiry_notification_task',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*'
     ]
 ];

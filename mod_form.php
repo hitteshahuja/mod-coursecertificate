@@ -109,6 +109,9 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
 
         // Adding the expirydate selector.
         certificate::add_expirydate_to_form($mform);
+        
+        // Adding the expiry notification selector.
+        certificate::add_expiry_reminder_notification_elements_to_form($mform);
 
         // Add standard elements.
         $this->standard_coursemodule_elements();
@@ -126,7 +129,9 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
      **/
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-
+        if ($data['expirynotificationdateoffset'] > $data['expirydaterelative']) {
+            $errors['expirynotificationdateoffset'] = get_string('errorexpirynotificationdateoffset', 'mod_coursecertificate');
+        } 
         return $errors;
     }
 
