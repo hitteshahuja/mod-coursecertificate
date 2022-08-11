@@ -108,8 +108,7 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
         $mform->disabledIf('template', 'hasissues', 'eq', 1);
 
         // Adding the expirydate selector.
-        certificate::add_expirydate_to_form($mform);
-        
+        certificate::add_expirydate_to_form($mform);    
         // Adding the expiry notification selector.
         certificate::add_expiry_reminder_notification_elements_to_form($mform);
 
@@ -131,7 +130,7 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
         $errors = parent::validation($data, $files);
         if ($data['expirynotificationdateoffset'] > $data['expirydaterelative']) {
             $errors['expirynotificationdateoffset'] = get_string('errorexpirynotificationdateoffset', 'mod_coursecertificate');
-        } 
+        }
         return $errors;
     }
 
