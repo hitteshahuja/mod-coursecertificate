@@ -103,11 +103,10 @@ class helper {
     /**
      * Sends expiry notification for a course certificate that is about to expire.
      *
-     *
      * @param \stdClass $user
      * @param \stdClass $coursecertificate
      * @param \stdClass $course
-     * @param \stdClass $template
+     * @param template $template
      * @return boolean
      */
     public static function send_expiry_notification(\stdClass $user, \stdClass $coursecertificate,
@@ -130,7 +129,7 @@ class helper {
                 // Send notification now.
                 echo("send notification now");
                 $template->expire_certificate_notification($certificate, $coursecertificate);
-                // Log it. 
+                // Log it.
             }
         }
         if ($lock) {

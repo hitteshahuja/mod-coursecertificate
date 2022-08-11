@@ -71,7 +71,7 @@ class send_expiry_notification_task extends \core\task\scheduled_task {
             // Send expiry notifciations.
             foreach ($users as $user) {
                 if (helper::send_expiry_notification($user, $coursecertificate, $course, $template)) {
-                    mtrace("... sent certificate expiry notification coursecertificate $coursecertificate->id 
+                    mtrace("... sent certificate expiry notification coursecertificate $coursecertificate->id
                     for user $user->id on course $course->id");
                 }
             }
