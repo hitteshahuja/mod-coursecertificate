@@ -52,29 +52,29 @@ class send_expiry_notification_task extends \core\task\scheduled_task {
         global $DB;
         // Get all the coursecertificates with automatic send enabled.
         $sql = "SELECT c.*
-                FROM {coursecertificate} c
+                        FROM {coursecertificate} c
                 JOIN {tool_certificate_templates} ct
                 ON c.template = ct.id
                 WHERE c.expirynotificationenabled = 1 AND c.expirydatetype <> 0";
+
         $coursecertificates = $DB->get_records_sql($sql);
         foreach ($coursecertificates as $coursecertificate) {
             [$course, $cm] = get_course_and_cm_from_instance($coursecertificate->id, 'coursecertificate',
-                $coursecertificate->course);
+            $coursecertificate->course);
             if (!$cm->visible) {
                 // Skip coursecertificate modules not visible.
                 continue;
             }
-
             $template = \tool_certificate\template::instance($coursecertificate->template);
-            // Get all the users who need the expiry notificatio sent. 
+            // Get all the users who need the expiry notificatio sent.
             $users = helper::get_users_to_send_expiry_notifications($coursecertificate, $cm);
             // Send expiry notifciations.
             foreach ($users as $user) {
                 if (helper::send_expiry_notification($user, $coursecertificate, $course, $template)) {
-                    mtrace("... sent certificate expiry notification coursecertificate $coursecertificate->id for user $user->id on course $course->id");
+                    mtrace("... sent certificate expiry notification coursecertificate $coursecertificate->id 
+                    for user $user->id on course $course->id");
                 }
             }
         }
-        die;
     }
 }

@@ -100,9 +100,18 @@ class helper {
         $records = $DB->get_records_sql($sql, $params);
         return $records ? reset($records) : null;
     }
-
-    public static function send_expiry_notification(\stdClass $user, \stdClass $coursecertificate, ?\stdClass $course = null, ?template $template = null)
-    {
+    /**
+     * Sends expiry notification for a course certificate that is about to expire.
+     *
+     *
+     * @param \stdClass $user
+     * @param \stdClass $coursecertificate
+     * @param \stdClass $course
+     * @param \stdClass $template
+     * @return boolean
+     */
+    public static function send_expiry_notification(\stdClass $user, \stdClass $coursecertificate,
+    ?\stdClass $course = null, ?template $template = null) {
         $lockfactory = \core\lock\lock_config::get_lock_factory('mod_coursecertificate_expiry_notification');
         $lock = $lockfactory->get_lock("i_{$user->id}_{$coursecertificate->template}_{$coursecertificate->course}", MINSECS);
         if (! $lock) {
@@ -117,12 +126,11 @@ class helper {
                 $certificate->expires,
                 $coursecertificate->expirynotificationdateoffset
                 );
-            if(time() > $expirynotifdate) {
+            if (time() > $expirynotifdate) {
                 // Send notification now.
                 echo("send notification now");
                 $template->expire_certificate_notification($certificate, $coursecertificate);
-                // Log it.
-                // ??? Last notifictiaton sent so it doesnt do it again ? 
+                // Log it. 
             }
         }
         if ($lock) {
@@ -196,6 +204,7 @@ class helper {
         return [$sql, $params];
     }
 
+
     /**
      * Get data for the issue. Important course fields (id, shortname, fullname and URL) and course customfields.
      *
@@ -242,7 +251,6 @@ class helper {
      */
     public static function get_users_to_send_expiry_notifications(\stdClass $coursecertificate, \cm_info $cm): array {
         global $DB;
-        
         $context = \context_course::instance($coursecertificate->course);
         // Get users already issued subquery.
         [$usersissuedsql, $usersissuedparams] = self::get_users_issued_expiry_notif_not_sent_select($coursecertificate->course,
@@ -255,7 +263,6 @@ class helper {
         // Filter only users with access to the activity {@see info_module::filter_user_list}.
         $info = new \core_availability\info_module($cm);
         $filteredusers = $info->filter_user_list($potentialusers);
-        
         // Filter only users without 'viewall' capabilities and with access to the activity.
         $users = [];
         foreach ($filteredusers as $filtereduser) {
