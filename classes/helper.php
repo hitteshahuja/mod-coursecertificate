@@ -128,9 +128,13 @@ class helper {
             if (time() > $expirynotifdate) {
                 // Send notification now.
                 echo("send notification now");
-                $template->expire_certificate_notification($certificate, $coursecertificate);
-                // Log it.
+                if ($template->expire_certificate_notification($certificate, $coursecertificate)){
+                    // Trigger event.
+                    \mod_coursecertificate\event\certificate_expiry_notification_sent::create_from_notification_sent
+                    ( $coursecertificate, $certificate)->trigger();
+                }
             }
+
         }
         if ($lock) {
             $lock->release();

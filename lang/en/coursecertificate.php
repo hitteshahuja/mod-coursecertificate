@@ -59,6 +59,7 @@ $string['enableautomaticsendpopup'] = 'All students will automatically receive a
 Students who already meet these access restrictions but haven\'t accessed this activity yet will immediately receive their copy as well.<br/><br/>
 Students who have already accessed this activity will not receive the certificate again.';
 $string['errorexpirynotificationdateoffset'] = 'Expiry notificate date cannot be after expiry date';
+$string['eventexpirynotificationsent'] = 'Expiry notification sent';
 $string['expirydate'] = 'Expiry date';
 $string['issueddate'] = 'Date issued';
 $string['managetemplates'] = 'Manage certificate templates';
