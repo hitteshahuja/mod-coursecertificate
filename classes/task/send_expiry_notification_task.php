@@ -55,7 +55,7 @@ class send_expiry_notification_task extends \core\task\scheduled_task {
                         FROM {coursecertificate} c
                 JOIN {tool_certificate_templates} ct
                 ON c.template = ct.id
-                WHERE c.expirynotificationenabled = 1 AND c.expirydatetype <> 0";
+                WHERE c.expirynotificationdateoffset <> 0 AND c.expirydatetype <> 0";
 
         $coursecertificates = $DB->get_records_sql($sql);
         foreach ($coursecertificates as $coursecertificate) {
