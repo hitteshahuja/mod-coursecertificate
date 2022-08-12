@@ -111,6 +111,7 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
         certificate::add_expirydate_to_form($mform);
         // Adding the expiry notification selector.
         certificate::add_expiry_reminder_notification_elements_to_form($mform);
+        $mform->disabledIf('expirynotificationdateoffset', 'hasissues', 'eq', 1);
 
         // Add standard elements.
         $this->standard_coursemodule_elements();
@@ -128,8 +129,9 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
      **/
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if ($data['expirynotificationdateoffset'] > $data['expirydaterelative']) {
-            $errors['expirynotificationdateoffset'] = get_string('errorexpirynotificationdateoffset', 'mod_coursecertificate');
+        if ($data['expirydatetype'] == certificate::DATE_EXPIRATION_AFTER &&
+        $data['expirynotificationdateoffset'] >= $data['expirydaterelative']) {
+            $errors['expirynotificationdateoffsetgroup'] = get_string('errorexpirynotificationdateoffset', 'mod_coursecertificate');
         }
         return $errors;
     }
@@ -141,6 +143,20 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
      * @return void
      **/
     public function data_preprocessing(&$defaultvalues) {
+        $draftitemid = file_get_submitted_draft_itemid('expirynotificationmessage');
+        if ($this->current->instance) {
+            $defaultvalues['expirynotificationmessage_editor']['text'] = file_prepare_draft_area($draftitemid, $this->context->id,
+               'mod_coursecertificate', 'expirynotificationmessage', null,
+               array('maxfiles' => 1,
+               'trusttext' => true), $defaultvalues['expirynotificationmessage']);
+            $defaultvalues['expirynotificationmessage_editor']['itemid'] = $draftitemid;
+            $defaultvalues['expirynotificationmessage_editor']['format'] = FORMAT_HTML;
+        } else {
+            file_prepare_draft_area($draftitemid, null, 'mod_coursecertificate', 'expirynotificationmessage', false);
+            $defaultvalues['expirynotificationmessage_editor']['text'] = '';
+            $defaultvalues['expirynotificationmessage_editor']['itemid'] = $draftitemid;
+            $defaultvalues['expirynotificationmessage_editor']['format'] = editors_get_preferred_format();
+        }
         if (isset($defaultvalues['expirydatetype'])) {
             if ($defaultvalues['expirydatetype'] == certificate::DATE_EXPIRATION_ABSOLUTE) {
                 $defaultvalues['expirydateabsolute'] = $defaultvalues['expirydateoffset'];
@@ -161,6 +177,9 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
      */
     public function data_postprocessing($data) {
         parent::data_postprocessing($data);
+        if (isset($data->expirynotificationmessage_editor)) {
+            $data->expirynotificationmessage = $data->expirynotificationmessage_editor['text'];
+        }
         switch ($data->expirydatetype) {
             case certificate::DATE_EXPIRATION_ABSOLUTE:
                 $data->expirydateoffset = $data->expirydateabsolute;
