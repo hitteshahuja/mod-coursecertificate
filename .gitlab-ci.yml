@@ -32,7 +32,7 @@ variables:
     - cd $CI_PROJECT_DIR/..
     - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-theme_workplace.git --branch WORKPLACE_311
     - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_wp.git --branch WORKPLACE_311
-    - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_certificate.git --branch MOODLE_39_STABLE
+    - moodle-plugin-ci add-plugin --clone git@github.com:hitteshahuja/moodle-tool_certificate.git --branch TCA-EXPIRY-NOTIF
     - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
     - cd moodle
 
@@ -81,7 +81,7 @@ behat:
   script:
     - . prepare-workplace $cibot_sshkey
     - cd $CI_PROJECT_DIR/..
-    - moodle-plugin-ci add-plugin --clone git@git.in.moodle.com:workplace/moodle-tool_certificate.git --branch MOODLE_39_STABLE
+    - moodle-plugin-ci add-plugin --clone git@github.com:hitteshahuja/moodle-tool_certificate.git --branch TCA-EXPIRY-NOTIF
     - moodle-plugin-ci install --db-host="$DB_HOST" --no-init -vvv
     - cd moodle
     - php admin/tool/phpunit/cli/init.php
