@@ -72,7 +72,9 @@ class certificate_expiry_notification_sent extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' was sent a 
-    certificate expiry notification for their certificate that is due to expire on ".$this->other['expires'];
+        $a = new stdclass();
+        $a->userid = $this->userid;
+        $a->expires = $this->other['expires'];
+        return get_string('eventexpirynotificationsentdescription', 'mod_coursecertificate', $a);
     }
 }

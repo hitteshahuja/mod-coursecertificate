@@ -60,6 +60,7 @@ Students who already meet these access restrictions but haven\'t accessed this a
 Students who have already accessed this activity will not receive the certificate again.';
 $string['errorexpirynotificationdateoffset'] = 'Expiry notificate date cannot be after expiry date';
 $string['eventexpirynotificationsent'] = 'Expiry notification sent';
+$string['eventexpirynotificationsentdescription'] = 'The user with id {$a->userid} was sent a certificate expiry notification for their certificate that is due to expire on {$a->expires}';
 $string['expirydate'] = 'Expiry date';
 $string['issueddate'] = 'Date issued';
 $string['managetemplates'] = 'Manage certificate templates';
