@@ -44,8 +44,9 @@ class certificate_expiry_notification_sent extends \core\event\base {
     /**
      * Create instance of event.
      *
-     * @param \stdClass $issue
-     * @return certificate_issued
+     * @param \stdClass $coursecertificate
+     * @param \stdClass $certificate
+     * @return \core\base\event $event
      */
     public static function create_from_notification_sent(\stdClass $coursecertificate, \stdClass $certificate) {
         $data = [
