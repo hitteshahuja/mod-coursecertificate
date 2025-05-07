@@ -57,7 +57,7 @@ class helper {
             $coursecertificate->template);
         // Get users enrolled with receive capabilities subquery.
         [$enrolledsql, $enrolledparams] = get_enrolled_sql($context, 'mod/coursecertificate:receive', 0, true);
-        $sql  = "SELECT eu.id FROM ($enrolledsql) eu WHERE eu.id NOT IN ($usersissuedsql)";
+        $sql = "SELECT eu.id FROM ($enrolledsql) eu WHERE eu.id NOT IN ($usersissuedsql)";
         $params = array_merge($enrolledparams, $usersissuedparams);
         $potentialusers = $DB->get_records_sql($sql, $params);
 
@@ -117,7 +117,7 @@ class helper {
      * @return int id of the certificate issue or 0 if user already had an issued certificate
      */
     public static function issue_certificate(\stdClass $user, \stdClass $coursecertificate,
-                                             ?\stdClass $course = null, ?template $template = null): int {
+        ?\stdClass $course = null, ?template $template = null): int {
         $lockfactory = \core\lock\lock_config::get_lock_factory('mod_coursecertificate_issue');
         $lock = $lockfactory->get_lock("i_{$user->id}_{$coursecertificate->template}_{$coursecertificate->course}", MINSECS);
         if (!$lock) {
@@ -138,7 +138,11 @@ class helper {
             $coursecertificate->expirydateoffset,
             $coursecertificate->expirydateoffset
         );
-        return $template->issue_certificate($user->id, $expirydate, $issuedata, 'mod_coursecertificate', $course->id, $lock);
+        $issueid = $template->issue_certificate($user->id, $expirydate, $issuedata, 'mod_coursecertificate', $course->id, $lock);
+        if ($issueid && !empty($coursecertificate->notificationemail)) {
+            self::send_notification_email($user, $coursecertificate, $course, $template);
+        }
+        return $issueid;
     }
 
     /**
@@ -153,7 +157,7 @@ class helper {
                 WHERE component = :component AND courseid = :courseid AND templateid = :templateid
                       AND archived = 0";
         $params = ['component' => 'mod_coursecertificate', 'courseid' => $courseid,
-            'templateid' => $templateid, ];
+            'templateid' => $templateid,];
         return [$sql, $params];
     }
 
@@ -193,5 +197,57 @@ class helper {
         }
 
         return $issuedata;
+    }
+    /**
+     * Send notification email about certificate issuance
+     *
+     * @param \stdClass $user
+     * @param \stdClass $coursecertificate
+     * @param \stdClass|null $course
+     * @param template|null $template
+     */
+    private static function send_notification_email(\stdClass $user, \stdClass $coursecertificate,
+        ?\stdClass $course = null, ?template $template = null): void {
+        global $CFG;
+
+        $course = $course ?? get_course($coursecertificate->course);
+        // Get course module from coursecertificate record.
+        $cm = get_coursemodule_from_instance('coursecertificate', $coursecertificate->id, $course->id, false, MUST_EXIST);
+        $template = $template ?? template::instance($coursecertificate->template);
+        $user = \core_user::get_user($user->id);
+        $from = \core_user::get_noreply_user();
+        $subject = get_string('certificateissued', 'coursecertificate', (object) [
+            'certificatename' => $template->get_name(),
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname
+        ]);
+
+        // Get the certificate issue record to get the issue date
+        $issue = self::get_user_certificate($user->id, $course->id, $coursecertificate->template);
+        $issuedate = $issue ? userdate($issue->timecreated, get_string('strftimedatefullshort')) : '';
+
+        // Build the message with all required information
+        $messagehtml = "<p>{$subject}</p>";
+        $messagehtml .= "<p>" . get_string('course') . ": <a href='" . course_get_url($course)->out() . "'>" . format_string($course->fullname) . "</a></p>";
+        $messagehtml .= "<p>" . get_string('user') . ": <a href='" . $CFG->wwwroot . "/user/profile.php?id=" . $user->id . "'>" . fullname($user) . "</a></p>";
+        $messagehtml .= "<p>" . get_string('date') . ": " . $issuedate . "</p>";
+        $messagehtml .= "<p>" . get_string('modulename', 'coursecertificate') . ": <a href='" . $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id . "'>" . get_string('coursecertificate:view', 'coursecertificate') . "</a></p>";
+
+        // Create plain text version
+        $messagetext = $subject . "\n\n";
+        $messagetext .= get_string('course') . ": " . format_string($course->fullname) . "\n";
+        $messagetext .= get_string('user') . ": " . fullname($user) . "\n";
+        $messagetext .= get_string('issueddate') . ": " . $issuedate . "\n";
+        $messagetext .= get_string('modulename', 'coursecertificate') . ": " . $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id;
+
+        $mailer = get_mailer();
+        $mailer->Sender = $from->email;
+        $mailer->From = $from->email;
+        $mailer->FromName = $from->firstname . ' ' . $from->lastname;
+        $mailer->Subject = $subject;
+        $mailer->Body = $messagehtml;
+        $mailer->AltBody = $messagetext;
+        $mailer->addAddress($coursecertificate->notificationemail);
+        $mailer->send();
     }
 }

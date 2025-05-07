@@ -71,5 +71,19 @@ function xmldb_coursecertificate_upgrade($oldversion) {
         // Coursecertificate savepoint reached.
         upgrade_mod_savepoint(true, 2022020200, 'coursecertificate');
     }
+    if ($oldversion < 2025050600) {
+        // Define field notificationemail to be added to coursecertificatemmt.
+        $table = new xmldb_table('coursecertificate');
+        $field = new xmldb_field('notificationemail', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'expirydateoffset');
+
+        // Conditionally launch add field notificationemail.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // coursecertificatemmt savepoint reached.
+        upgrade_mod_savepoint(true, 2025050600, 'coursecertificate');
+    }
+
     return true;
 }
