@@ -229,12 +229,14 @@ class helper {
 
         // Build the message with all required information.
         $messagehtml = "<p>{$subject}</p>";
-        $messagehtml .= "<p>" . get_string('course') . ": <a href='" . course_get_url($course)->out() . "'>" . format_string($course->fullname) . "</a></p>";
+        $messagehtml .= "<p>" . get_string('course') . ": <a href='" . course_get_url($course)->out() . "'>" .
+            format_string($course->fullname) . "</a></p>";
         $messagehtml .= "<p>" . get_string('user') . ": <a href='" . $CFG->wwwroot . "/user/profile.php?id=" . $user->id . "'>" .
             fullname($user) . "</a></p>";
         $messagehtml .= "<p>" . get_string('date') . ": " . $issuedate . "</p>";
         $messagehtml .= "<p>" . get_string('modulename', 'coursecertificate') . ": <a href='" .
-            $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id . "'>" . get_string('coursecertificate:view', 'coursecertificate') . "</a></p>";
+            $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id . "'>" .
+            get_string('coursecertificate:view', 'coursecertificate') . "</a></p>";
 
         // Create plain text version.
         $messagetext = $subject . "\n\n";
