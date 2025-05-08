@@ -157,7 +157,8 @@ class helper {
                 WHERE component = :component AND courseid = :courseid AND templateid = :templateid
                       AND archived = 0";
         $params = ['component' => 'mod_coursecertificate', 'courseid' => $courseid,
-            'templateid' => $templateid,];
+            'templateid' => $templateid,
+        ];
         return [$sql, $params];
     }
 
@@ -219,26 +220,29 @@ class helper {
         $subject = get_string('certificateissued', 'coursecertificate', (object) [
             'certificatename' => $template->get_name(),
             'firstname' => $user->firstname,
-            'lastname' => $user->lastname
+            'lastname' => $user->lastname,
         ]);
 
-        // Get the certificate issue record to get the issue date
+        // Get the certificate issue record to get the issue date.
         $issue = self::get_user_certificate($user->id, $course->id, $coursecertificate->template);
         $issuedate = $issue ? userdate($issue->timecreated, get_string('strftimedatefullshort')) : '';
 
-        // Build the message with all required information
+        // Build the message with all required information.
         $messagehtml = "<p>{$subject}</p>";
         $messagehtml .= "<p>" . get_string('course') . ": <a href='" . course_get_url($course)->out() . "'>" . format_string($course->fullname) . "</a></p>";
-        $messagehtml .= "<p>" . get_string('user') . ": <a href='" . $CFG->wwwroot . "/user/profile.php?id=" . $user->id . "'>" . fullname($user) . "</a></p>";
+        $messagehtml .= "<p>" . get_string('user') . ": <a href='" . $CFG->wwwroot . "/user/profile.php?id=" . $user->id . "'>" .
+            fullname($user) . "</a></p>";
         $messagehtml .= "<p>" . get_string('date') . ": " . $issuedate . "</p>";
-        $messagehtml .= "<p>" . get_string('modulename', 'coursecertificate') . ": <a href='" . $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id . "'>" . get_string('coursecertificate:view', 'coursecertificate') . "</a></p>";
+        $messagehtml .= "<p>" . get_string('modulename', 'coursecertificate') . ": <a href='" .
+            $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id . "'>" . get_string('coursecertificate:view', 'coursecertificate') . "</a></p>";
 
-        // Create plain text version
+        // Create plain text version.
         $messagetext = $subject . "\n\n";
         $messagetext .= get_string('course') . ": " . format_string($course->fullname) . "\n";
         $messagetext .= get_string('user') . ": " . fullname($user) . "\n";
         $messagetext .= get_string('issueddate') . ": " . $issuedate . "\n";
-        $messagetext .= get_string('modulename', 'coursecertificate') . ": " . $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id;
+        $messagetext .= get_string('modulename', 'coursecertificate') . ": " .
+            $CFG->wwwroot . "/mod/coursecertificate/view.php?id=" . $cm->id;
 
         $mailer = get_mailer();
         $mailer->Sender = $from->email;

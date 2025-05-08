@@ -109,7 +109,7 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
 
         // Adding the expirydate selector.
         certificate::add_expirydate_to_form($mform);
-        // Add notification email field
+        // Add notification email field.
         $mform->addElement('header', 'notificationsettings', get_string('notificationsettings', 'mod_coursecertificate'));
         $mform->addElement('text', 'notificationemail', get_string('notificationemail', 'mod_coursecertificate'), ['size' => '64']);
         $mform->setType('notificationemail', PARAM_EMAIL);
