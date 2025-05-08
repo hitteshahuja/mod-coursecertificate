@@ -26,7 +26,7 @@ use tool_certificate\certificate;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 /**
  * Module instance settings form.
@@ -109,7 +109,12 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
 
         // Adding the expirydate selector.
         certificate::add_expirydate_to_form($mform);
-
+        // Add notification email field.
+        $mform->addElement('header', 'notificationsettings', get_string('notificationsettings', 'mod_coursecertificate'));
+        $mform->addElement('text', 'notificationemail', get_string('notificationemail', 'mod_coursecertificate'), ['size' => '64']);
+        $mform->setType('notificationemail', PARAM_EMAIL);
+        $mform->addHelpButton('notificationemail', 'notificationemail', 'mod_coursecertificate');
+        $mform->addElement('static', 'notificationemail_info', '', get_string('notificationemail_info', 'mod_coursecertificate'));
         // Add standard elements.
         $this->standard_coursemodule_elements();
 
@@ -220,7 +225,7 @@ class mod_coursecertificate_mod_form extends moodleform_mod {
             $courseissues = certificate::count_issues_for_course($certificate->template, $certificate->course,
                 'mod_coursecertificate', null, null);
             if ($courseissues > 0) {
-                return  "1";
+                return "1";
             }
         }
         return "0";
